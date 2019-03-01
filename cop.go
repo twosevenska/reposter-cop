@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/kelseyhightower/envconfig"
@@ -14,7 +15,8 @@ import (
 )
 
 type botConf struct {
-	Token string `envconfig:"token"`
+	Token      string `envconfig:"token"`
+	ExpiryTime int    `envconfig:"expiry_time" default:168`
 }
 
 func main() {
@@ -35,6 +37,10 @@ func main() {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
+
+	// Start our cache
+	expiryTime := time.Duration(bc.ExpiryTime) * time.Hour
+	archiver.Init(expiryTime)
 
 	// Register the ProcessMessage func as a callback for MessageCreate events.
 	dg.AddHandler(archiver.ProcessMessage)
