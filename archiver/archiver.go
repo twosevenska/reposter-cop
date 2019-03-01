@@ -20,21 +20,22 @@ func ProcessMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	//TODO: Look into using the m->Embeds->url
 	url := xurls.Relaxed().FindString(m.Content)
 	isRepost, data := fetch(url)
 
 	if isRepost {
-		msg = fmt.Sprintf("REPOST ALERT! This url was initially posted by %s on %s channel.", data.User, data.Channel)
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
+		msg := fmt.Sprintf("REPOST ALERT! This url was initially posted by %s on %s channel.", data.User, data.Channel)
+		s.ChannelMessageSend(m.ChannelID, msg)
 	} else {
-		err := create(url, user, channel)
+		user := m.Author.Username
+		channel, err := s.Channel(m.ChannelID)
 		if err != nil {
 			log.WithFields(log.Fields{
-				"url":     url,
-				"user":    user,
-				"channel": channel,
-			}).Info("Failed to create new entry.")
+				"url": url,
+			}).Warnf("Failed to create new entry: %s", err)
 		}
+		create(url, user, channel.Name)
 	}
 }
 
@@ -48,6 +49,6 @@ func fetch(address string) (bool, Metadata) {
 	return false, Metadata{}
 }
 
-func create(url, user, channel) error {
-	return nil
+func create(url, user, channel string) {
+	return
 }
