@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"reposter-cop/archiver"
+	"reposter-cop/splash"
 )
 
 type botConf struct {
@@ -30,6 +31,8 @@ func main() {
 	if bc.Token == "" {
 		log.Fatal("Tried loading an empty token")
 	}
+
+	splash.Showtime()
 
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + bc.Token)
